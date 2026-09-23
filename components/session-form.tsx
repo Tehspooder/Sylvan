@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,10 @@ export function SessionForm({
   values: SessionFormValues;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [title, setTitle] = useState(values.title);
+  const [sessionDate, setSessionDate] = useState(values.sessionDate);
+  const [summary, setSummary] = useState(values.summary);
+  const [rawNotes, setRawNotes] = useState(values.rawNotes);
 
   return (
     <form action={formAction} className="grid gap-5">
@@ -36,7 +40,8 @@ export function SessionForm({
             id="title"
             name="title"
             required
-            defaultValue={values.title}
+            value={title}
+            onChange={(event) => setTitle(event.target.value)}
             placeholder="The mists"
             className="h-11 px-3 text-base md:text-base"
           />
@@ -48,7 +53,8 @@ export function SessionForm({
             name="session_date"
             type="date"
             required
-            defaultValue={values.sessionDate}
+            value={sessionDate}
+            onChange={(event) => setSessionDate(event.target.value)}
             className="h-11 px-3 text-base md:text-base"
           />
         </div>
@@ -58,7 +64,8 @@ export function SessionForm({
         <Textarea
           id="summary"
           name="summary"
-          defaultValue={values.summary}
+          value={summary}
+          onChange={(event) => setSummary(event.target.value)}
           rows={3}
           placeholder="Optional. Leave blank to use the opening of the notes."
           className="min-h-24 text-base md:text-base"
@@ -90,7 +97,8 @@ export function SessionForm({
         <Textarea
           id="raw_notes"
           name="raw_notes"
-          defaultValue={values.rawNotes}
+          value={rawNotes}
+          onChange={(event) => setRawNotes(event.target.value)}
           placeholder={"@person Ireena Kolyana — She asked the party for an escort.\n@place Village of Barovia — Fog, locked doors, a church that will not hold."}
           className="min-h-[24rem] text-base leading-relaxed md:text-base"
         />

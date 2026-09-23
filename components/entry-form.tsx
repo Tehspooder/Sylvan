@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +30,10 @@ export function EntryForm({
   hint?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, initialState);
+  const [type, setType] = useState(values.type);
+  const [sessionId, setSessionId] = useState(values.sessionId);
+  const [title, setTitle] = useState(values.title);
+  const [body, setBody] = useState(values.body);
 
   return (
     <form action={formAction} className="grid gap-5">
@@ -40,7 +44,8 @@ export function EntryForm({
           <select
             id="type"
             name="type"
-            defaultValue={values.type}
+            value={type}
+            onChange={(event) => setType(event.target.value as EntryFormValues["type"])}
             className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             {ENTRY_TYPES.map((type) => (
@@ -55,7 +60,8 @@ export function EntryForm({
           <select
             id="session_id"
             name="session_id"
-            defaultValue={values.sessionId}
+            value={sessionId}
+            onChange={(event) => setSessionId(event.target.value)}
             className="h-11 w-full rounded-lg border border-input bg-transparent px-3 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <option value="">No session</option>
@@ -73,7 +79,8 @@ export function EntryForm({
           id="title"
           name="title"
           required
-          defaultValue={values.title}
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </div>
@@ -82,7 +89,8 @@ export function EntryForm({
         <Textarea
           id="body"
           name="body"
-          defaultValue={values.body}
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
           className="min-h-48 text-base leading-relaxed md:text-base"
         />
       </div>

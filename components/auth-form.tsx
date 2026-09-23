@@ -30,6 +30,8 @@ function SignInForm({
   onSwitch: () => void;
 }) {
   const [state, action, pending] = useActionState(signIn, initialState);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <form action={action} className="grid gap-4">
@@ -40,6 +42,8 @@ function SignInForm({
           type="email"
           autoComplete="email"
           required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </Field>
@@ -50,6 +54,8 @@ function SignInForm({
           type="password"
           autoComplete="current-password"
           required
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </Field>
@@ -72,6 +78,9 @@ function SignInForm({
 
 function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
   const [state, action, pending] = useActionState(signUp, initialState);
+  const [displayName, setDisplayName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   return (
     <form action={action} className="grid gap-4">
@@ -80,6 +89,8 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
           id="display_name"
           name="display_name"
           autoComplete="name"
+          value={displayName}
+          onChange={(event) => setDisplayName(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </Field>
@@ -90,6 +101,8 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
           type="email"
           autoComplete="email"
           required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </Field>
@@ -101,6 +114,8 @@ function SignUpForm({ onSwitch }: { onSwitch: () => void }) {
           autoComplete="new-password"
           minLength={8}
           required
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </Field>

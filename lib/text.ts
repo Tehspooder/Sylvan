@@ -22,6 +22,13 @@ export function friendlyAuthError(message: string): string {
   if (lower.includes("already registered") || lower.includes("already been registered")) {
     return "An account with that email already exists. Sign in instead.";
   }
+  if (
+    lower.includes("fetch failed") ||
+    lower.includes("failed to fetch") ||
+    lower.includes("network")
+  ) {
+    return "Could not reach Supabase. Check the project URL and that it is running.";
+  }
   if (lower.includes("password")) {
     return message;
   }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { createCampaign } from "@/actions/campaigns";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +11,9 @@ const initialState: ActionState = {};
 
 export function CampaignForm() {
   const [state, action, pending] = useActionState(createCampaign, initialState);
+  const [name, setName] = useState("");
+  const [system, setSystem] = useState("D&D 5e");
+  const [startingDate, setStartingDate] = useState("");
 
   return (
     <form action={action} className="grid gap-4">
@@ -21,6 +24,8 @@ export function CampaignForm() {
           name="name"
           required
           placeholder="Curse of Strahd"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
           className="h-11 px-3 text-base md:text-base"
         />
       </div>
@@ -31,7 +36,8 @@ export function CampaignForm() {
             id="system"
             name="system"
             list="game-systems"
-            defaultValue="D&D 5e"
+            value={system}
+            onChange={(event) => setSystem(event.target.value)}
             className="h-11 px-3 text-base md:text-base"
           />
           <datalist id="game-systems">
@@ -47,6 +53,8 @@ export function CampaignForm() {
             id="starting_date"
             name="starting_date"
             type="date"
+            value={startingDate}
+            onChange={(event) => setStartingDate(event.target.value)}
             className="h-11 px-3 text-base md:text-base"
           />
         </div>
