@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # Per-boot runtime initialization for the Sylvan Cloud Agent environment.
-# Starts the Docker daemon and the local Supabase stack. Must tolerate
-# restarts and reach a clear ready state before returning.
+# Brings up Docker, the local Supabase stack, and the Next.js dev server.
+# Idempotent: safe to run on every boot and to re-run by hand.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# 1. Start the Docker daemon if it is not already running. There is no
-#    systemd in the VM, so dockerd is launched directly and backgrounded.
+# 1. Start the Docker daemon if it is not already running. There is no systemd
+#    in the VM, so dockerd is launched directly and backgrounded. A lock keeps
+#    concurrent invocations from racing to start two daemons.
+exec 9>/tmp/sylvan-dockerd.lock
+flock 9
 if ! sudo docker info >/dev/null 2>&1; then
   sudo rm -f /var/run/docker.pid 2>/dev/null || true
   sudo nohup dockerd >/tmp/dockerd.log 2>&1 &
@@ -18,6 +21,7 @@ if ! sudo docker info >/dev/null 2>&1; then
   done
   sudo docker info >/dev/null 2>&1 || { echo "dockerd failed to start" >&2; tail -n 40 /tmp/dockerd.log >&2 || true; exit 1; }
 fi
+flock -u 9
 
 # 2. Nested-VM networking fix. Docker programs the legacy iptables backend,
 #    whose FORWARD chain defaults to DROP and blocks inter-container traffic
@@ -58,4 +62,19 @@ for attempt in 1 2 3 4 5; do
   sleep 8
 done
 
-echo "Supabase is up. The Next.js dev server runs in the 'next-dev' terminal (http://localhost:3000)."
+# 6. Start the Next.js dev server in the background, unless it is already
+#    serving or the caller opted out (SKIP_DEV_SERVER=1 for infra-only runs).
+if [ "${SKIP_DEV_SERVER:-0}" != "1" ]; then
+  if curl -sS -o /dev/null -m 3 http://localhost:3000/ 2>/dev/null; then
+    echo "Next.js dev server already serving on http://localhost:3000"
+  else
+    echo "Starting Next.js dev server (logs: /tmp/next-dev.log)..."
+    nohup npm run dev >/tmp/next-dev.log 2>&1 &
+    for _ in $(seq 1 30); do
+      if curl -sS -o /dev/null -m 3 http://localhost:3000/ 2>/dev/null; then break; fi
+      sleep 1
+    done
+  fi
+fi
+
+echo "Sylvan is ready: app on http://localhost:3000, Supabase API on http://127.0.0.1:54321, Studio on http://127.0.0.1:54323."
